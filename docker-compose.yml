@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  budget-wishlist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Enable BuildKit for faster builds
+      cache_from:
+        - budget-wishlist:latest
+    image: budget-wishlist:latest
+    container_name: budget-wishlist
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist SQLite database
+      - ./data:/app/data
+      # Persist uploaded icons
+      - ./public/icons:/app/public/icons
+    environment:
+      - NODE_ENV=production
+      # Add your environment variables here
+      # - API_SECRET=${API_SECRET}
+    restart: unless-stopped
+    # Resource limits for better resource management
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    # Read-only root filesystem (except volumes)
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    # Network mode for better isolation (optional)
+    # network_mode: bridge

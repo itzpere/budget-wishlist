@@ -1,0 +1,49 @@
+services:
+  budget-wishlist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - budget-wishlist:latest
+    image: budget-wishlist:latest
+    container_name: budget-wishlist-prod
+    ports:
+      - "3000:3000"
+    volumes:
+      - budget-data:/app/data
+      - budget-icons:/app/public/icons
+    environment:
+      - NODE_ENV=production
+      - API_SECRET=${API_SECRET:-}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  budget-data:
+    driver: local
+  budget-icons:
+    driver: local

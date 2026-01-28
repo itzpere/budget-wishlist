@@ -1,0 +1,29 @@
+services:
+  budget-wishlist-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      cache_from:
+        - budget-wishlist-dev:latest
+    image: budget-wishlist-dev:latest
+    container_name: budget-wishlist-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./drizzle:/app/drizzle
+      # Persist data and icons
+      - ./data:/app/data
+      - ./public/icons:/app/public/icons
+      # Exclude node_modules
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - API_SECRET=${API_SECRET:-development-secret}
+    restart: unless-stopped
+    command: npm run dev
+    stdin_open: true
+    tty: true

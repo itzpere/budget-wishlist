@@ -1,0 +1,67 @@
+# Local data directory (contains SQLite database)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Production
+build/
+dist/
+
+# Environment variables
+.env*.local
+.env
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+.jest/
+*.test.*
+*.spec.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

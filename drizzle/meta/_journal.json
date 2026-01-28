@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1769599318337,
+      "tag": "0000_violet_human_torch",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1769607019172,
+      "tag": "0001_lovely_scarlet_witch",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1769624993665,
+      "tag": "0002_confused_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1769627101187,
+      "tag": "0003_overconfident_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1769632717889,
+      "tag": "0004_huge_kree",
+      "breakpoints": true
+    }
+  ]
+}

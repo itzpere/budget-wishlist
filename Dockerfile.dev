@@ -1,0 +1,28 @@
+# Development Dockerfile with hot reload support
+FROM node:20.18-alpine
+
+# Install dependencies for native modules
+RUN apk add --no-cache libc6-compat python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Copy source files
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/public/icons
+
+EXPOSE 3000
+
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Use development server with hot reload
+CMD ["npm", "run", "dev"]

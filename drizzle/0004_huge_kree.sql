@@ -1,0 +1,1 @@
+ALTER TABLE `items` ADD `local_icon_path` text;
