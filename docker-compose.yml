@@ -42,7 +42,8 @@ services:
     security_opt:
       - no-new-privileges:true
     # Read-only root filesystem (except volumes)
-    read_only: true
+    # Note: Disabled read_only to allow database file creation
+    # read_only: true
     tmpfs:
       - /tmp
       - /app/.next/cache
