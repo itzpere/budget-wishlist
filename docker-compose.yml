@@ -17,6 +17,7 @@ services:
       - ./public/icons:/app/public/icons
     environment:
       - NODE_ENV=production
+      - DATA_DIR=/app/data
       # Add your environment variables here
       # - API_SECRET=${API_SECRET}
     restart: unless-stopped

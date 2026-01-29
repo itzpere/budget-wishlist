@@ -4,15 +4,45 @@ import * as schema from './schema';
 import { mkdirSync, existsSync } from 'fs';
 import path from 'path';
 
-// Ensure the data directory exists
-const dataDir = path.join(process.cwd(), 'data');
-if (!existsSync(dataDir)) {
-  mkdirSync(dataDir, { recursive: true });
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
+
+function initDb() {
+  if (_db) return _db;
+
+  // Use environment variable if set, otherwise use default
+  const dataDir = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+  
+  try {
+    if (!existsSync(dataDir)) {
+      mkdirSync(dataDir, { recursive: true });
+    }
+  } catch (error) {
+    console.error('Failed to create data directory:', error);
+    console.error('Current working directory:', process.cwd());
+    console.error('Attempted data directory:', dataDir);
+    throw error;
+  }
+
+  const dbPath = path.join(dataDir, 'sqlite.db');
+  console.log('Opening database at:', dbPath);
+  
+  try {
+    const sqlite = new Database(dbPath);
+    sqlite.pragma('journal_mode = WAL');
+    _db = drizzle(sqlite, { schema });
+    console.log('Database initialized successfully');
+    return _db;
+  } catch (error) {
+    console.error('Failed to open database:', error);
+    console.error('Database path:', dbPath);
+    throw error;
+  }
 }
 
-const dbPath = path.join(dataDir, 'sqlite.db');
-
-const sqlite = new Database(dbPath);
-sqlite.pragma('journal_mode = WAL');
-
-export const db = drizzle(sqlite, { schema });
+// Lazy initialization using Proxy
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
+  get(target, prop) {
+    const instance = initDb();
+    return instance[prop as keyof typeof instance];
+  }
+});
