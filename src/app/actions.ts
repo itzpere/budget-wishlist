@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { setSetting } from '@/lib/settings';
 import { setApiEnabled } from '@/lib/settings';
+import fs from 'fs';
+import path from 'path';
 
 export async function addWishlist(formData: FormData) {
   const name = formData.get('name') as string;
@@ -340,9 +342,6 @@ export async function exportDatabase() {
   const icons: Record<string, string> = {};
   if (iconPaths.length > 0) {
     try {
-      const fs = require('fs');
-      const path = require('path');
-      
       for (const iconPath of iconPaths) {
         const fullPath = path.join(process.cwd(), 'public', iconPath);
         if (fs.existsSync(fullPath)) {
@@ -383,32 +382,45 @@ export async function importDatabase(data: string) {
     await db.delete(wishlists);
     await db.delete(settings);
 
-    // Import wishlists
+    // Import wishlists - convert createdAt string to Date
     if (importData.wishlists.length > 0) {
-      await db.insert(wishlists).values(importData.wishlists);
+      const wishlistsData = importData.wishlists.map((w: typeof importData.wishlists[number]) => ({
+        ...w,
+        createdAt: w.createdAt ? new Date(w.createdAt) : new Date(),
+      }));
+      await db.insert(wishlists).values(wishlistsData);
     }
 
-    // Import items
+    // Import items - convert createdAt string to Date
     if (importData.items.length > 0) {
-      await db.insert(items).values(importData.items);
+      const itemsData = importData.items.map((i: typeof importData.items[number]) => ({
+        ...i,
+        createdAt: i.createdAt ? new Date(i.createdAt) : new Date(),
+      }));
+      await db.insert(items).values(itemsData);
     }
 
-    // Import history
+    // Import history - convert timestamp string to Date
     if (importData.history && importData.history.length > 0) {
-      await db.insert(history).values(importData.history);
+      const historyData = importData.history.map((h: typeof importData.history[number]) => ({
+        ...h,
+        timestamp: h.timestamp ? new Date(h.timestamp) : new Date(),
+      }));
+      await db.insert(history).values(historyData);
     }
 
-    // Import settings
+    // Import settings - convert updatedAt string to Date
     if (importData.settings && importData.settings.length > 0) {
-      await db.insert(settings).values(importData.settings);
+      const settingsData = importData.settings.map((s: typeof importData.settings[number]) => ({
+        ...s,
+        updatedAt: s.updatedAt ? new Date(s.updatedAt) : new Date(),
+      }));
+      await db.insert(settings).values(settingsData);
     }
 
     // Restore icons if they exist in the backup
     if (importData.icons && Object.keys(importData.icons).length > 0) {
       try {
-        const fs = require('fs');
-        const path = require('path');
-        
         const iconsDir = path.join(process.cwd(), 'public', 'icons');
         
         // Create icons directory if it doesn't exist

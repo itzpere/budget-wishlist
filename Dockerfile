@@ -1,21 +1,23 @@
-# Use specific version for reproducibility
-FROM node:20.18-alpine AS base
+# Use Debian-based image for better compatibility
+FROM node:20.18-bookworm-slim AS base
 
 # Build stage with all dependencies
 FROM base AS builder
 WORKDIR /app
 
 # Install build dependencies
-# hadolint ignore=DL3018
-RUN apk add --no-cache \
-    libc6-compat \
+RUN apt-get update && apt-get install -y \
     python3 \
     make \
-    g++
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files and install dependencies
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use npm install with --legacy-peer-deps to avoid ETXTBSY errors in Docker
+RUN npm install --legacy-peer-deps --ignore-scripts && \
+    npm rebuild && \
+    npm run prepare --if-present
 
 # Copy source files
 COPY . .
@@ -44,14 +46,14 @@ ENV NODE_ENV=production \
     HOSTNAME="0.0.0.0"
 
 # Install runtime dependencies only
-# hadolint ignore=DL3018
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     dumb-init \
-    sqlite
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
 
 # Create directories with proper permissions before copying files
 RUN mkdir -p /app/data /app/public/icons && \
