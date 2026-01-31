@@ -6,11 +6,12 @@ echo "Starting WishtoBudget application..."
 # Ensure data directory exists
 mkdir -p /app/data
 
-# Initialize database if it doesn't exist
-if [ ! -f /app/data/sqlite.db ]; then
-  echo "Database not found. Running migrations..."
-  node migrate.js || echo "Warning: Migration failed, database will be created on first access"
-fi
+# Always run migrations to ensure schema is up to date
+echo "Running database migrations..."
+node migrate.js || {
+  echo "ERROR: Migration failed!"
+  exit 1
+}
 
 echo "Starting Next.js server..."
 exec "$@"
