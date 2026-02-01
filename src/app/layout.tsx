@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "WishtoBudget",
   description: "A self-hostable Budget and Wishlist management application",
+  appleWebApp: {
+    title: "WishtoBudget",
+  },
 };
 
 export default function RootLayout({
